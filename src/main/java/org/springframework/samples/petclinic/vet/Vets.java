@@ -16,27 +16,34 @@
 package org.springframework.samples.petclinic.vet;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Simple domain object representing a list of veterinarians. Mostly here to be used for the 'vets' {@link
+ * Simple domain object representing a list of veterinarians. 
+ * Mostly here to be used for the 'vets' {@link
  * org.springframework.web.servlet.view.xml.MarshallingView}.
+ * It's been modeled as immutable but the internal {@link Vet}
+ * objects are still mutable.
  *
  * @author Arjen Poutsma
+ * @author Cèsar Ordiñana
  */
 @XmlRootElement
 public class Vets {
 
-    private List<Vet> vets;
+    private final List<Vet> vets;
+    
+    public Vets(Collection<Vet> vets) {
+        this.vets = List.copyOf(vets);
+    }
 
     @XmlElement
     public List<Vet> getVetList() {
-        if (vets == null) {
-            vets = new ArrayList<>();
-        }
         return vets;
     }
 
