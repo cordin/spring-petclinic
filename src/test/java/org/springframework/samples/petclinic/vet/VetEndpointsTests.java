@@ -41,7 +41,7 @@ import org.springframework.test.web.servlet.ResultActions;
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(VetConfiguration.class)
-public class VetControllerTests {
+public class VetEndpointsTests {
 
     @Autowired
     private MockMvc mockMvc;
