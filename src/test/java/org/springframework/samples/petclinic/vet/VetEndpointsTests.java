@@ -40,7 +40,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * Test class for the {@link VetController}
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(VetConfiguration.class)
+@WebMvcTest(VetRouteConfiguration.class)
 public class VetEndpointsTests {
 
     @Autowired

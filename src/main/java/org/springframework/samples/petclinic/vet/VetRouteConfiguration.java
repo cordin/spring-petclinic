@@ -28,7 +28,7 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
  * @author Cèsar Ordiñana
  */
 @Configuration
-public class VetConfiguration {
+public class VetRouteConfiguration {
     
     @Bean 
     public VetHandler vetHandler(VetRepository repository) {

@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(OwnerConfiguration.class)
+@WebMvcTest(OwnerRouteConfiguration.class)
 public class OwnerEndpointsTests {
 
     private static final int TEST_OWNER_ID = 1;

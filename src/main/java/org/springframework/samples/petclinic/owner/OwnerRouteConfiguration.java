@@ -29,7 +29,7 @@ import org.springframework.web.servlet.function.RouterFunction;
  * @author Cèsar Ordiñana
  */
 @Configuration
-public class OwnerConfiguration {
+public class OwnerRouteConfiguration {
 
     @Bean
     public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits, Validator validator) {
