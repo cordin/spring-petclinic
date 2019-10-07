@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.util.Optional;
+
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * Test class for the {@link PetController}
  *
  * @author Colin But
+ * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = PetController.class,
@@ -73,7 +76,7 @@ public class PetControllerTests {
         cat.setId(3);
         cat.setName("hamster");
         given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(cat));
-        given(this.owners.findById(TEST_OWNER_ID)).willReturn(new Owner());
+        given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(new Owner()));
         given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
 
     }

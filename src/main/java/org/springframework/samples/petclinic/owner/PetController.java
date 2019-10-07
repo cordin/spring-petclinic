@@ -50,7 +50,7 @@ class PetController {
 
     @ModelAttribute("owner")
     public Owner findOwner(@PathVariable("ownerId") int ownerId) {
-        return this.owners.findById(ownerId);
+        return this.owners.findById(ownerId).get();
     }
 
     @InitBinder("owner")

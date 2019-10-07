@@ -19,6 +19,7 @@ package org.springframework.samples.petclinic.owner;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.assertj.core.util.Lists;
 import org.hamcrest.BaseMatcher;
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,13 +49,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 /**
- * Test class for {@link OwnerController}
+ * Test class for {@link OwnerHandler}
  *
  * @author Colin But
+ * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(OwnerController.class)
-public class OwnerControllerTests {
+@WebMvcTest(OwnerConfiguration.class)
+public class OwnerEndpointsTests {
 
     private static final int TEST_OWNER_ID = 1;
 
@@ -85,7 +88,7 @@ public class OwnerControllerTests {
         max.setName("Max");
         max.setBirthDate(LocalDate.now());
         george.setPetsInternal(Collections.singleton(max));
-        given(this.owners.findById(TEST_OWNER_ID)).willReturn(george);
+        given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(george));
         Visit visit = new Visit();
         visit.setDate(LocalDate.now());
         given(this.visits.findByPetId(max.getId())).willReturn(Collections.singletonList(visit));
@@ -185,7 +188,7 @@ public class OwnerControllerTests {
             .param("telephone", "01616291589")
         )
             .andExpect(status().is3xxRedirection())
-            .andExpect(view().name("redirect:/owners/{ownerId}"));
+            .andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
     }
 
     @Test
