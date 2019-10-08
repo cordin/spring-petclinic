@@ -37,7 +37,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.owner.Owner;
 import org.springframework.samples.petclinic.owner.OwnerRepository;
 import org.springframework.samples.petclinic.owner.Pet;
-import org.springframework.samples.petclinic.owner.PetController;
+import org.springframework.samples.petclinic.owner.PetHandler;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.owner.PetTypeFormatter;
@@ -45,17 +45,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * Test class for the {@link PetController}
+ * Test class for the {@link PetHandler}
  *
  * @author Colin But
  * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = PetController.class,
+@WebMvcTest(value = PetRouteConfiguration.class,
     includeFilters = @ComponentScan.Filter(
                             value = PetTypeFormatter.class,
                             type = FilterType.ASSIGNABLE_TYPE))
-public class PetControllerTests {
+public class PetEndpointsTests {
 
     private static final int TEST_OWNER_ID = 1;
     private static final int TEST_PET_ID = 1;
@@ -76,8 +76,10 @@ public class PetControllerTests {
         cat.setId(3);
         cat.setName("hamster");
         given(this.pets.findPetTypes()).willReturn(Lists.newArrayList(cat));
-        given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(new Owner()));
-        given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
+        Owner owner = new Owner();
+        owner.setId(TEST_OWNER_ID);
+        given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+        given(this.pets.findById(TEST_PET_ID)).willReturn(Optional.of(new Pet()));
 
     }
 
@@ -97,7 +99,7 @@ public class PetControllerTests {
             .param("birthDate", "2015-02-12")
         )
             .andExpect(status().is3xxRedirection())
-            .andExpect(view().name("redirect:/owners/{ownerId}"));
+            .andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
     }
 
     @Test
@@ -106,7 +108,6 @@ public class PetControllerTests {
             .param("name", "Betty")
             .param("birthDate", "2015-02-12")
         )
-            .andExpect(model().attributeHasNoErrors("owner"))
             .andExpect(model().attributeHasErrors("pet"))
             .andExpect(model().attributeHasFieldErrors("pet", "type"))
             .andExpect(model().attributeHasFieldErrorCode("pet", "type", "required"))
@@ -130,7 +131,7 @@ public class PetControllerTests {
             .param("birthDate", "2015-02-12")
         )
             .andExpect(status().is3xxRedirection())
-            .andExpect(view().name("redirect:/owners/{ownerId}"));
+            .andExpect(view().name("redirect:/owners/" + TEST_OWNER_ID));
     }
 
     @Test
@@ -139,7 +140,6 @@ public class PetControllerTests {
             .param("name", "Betty")
             .param("birthDate", "2015/02/12")
         )
-            .andExpect(model().attributeHasNoErrors("owner"))
             .andExpect(model().attributeHasErrors("pet"))
             .andExpect(status().isOk())
             .andExpect(view().name("pets/createOrUpdatePetForm"));

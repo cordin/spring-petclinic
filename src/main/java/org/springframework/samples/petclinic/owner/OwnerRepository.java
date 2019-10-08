@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.owner;
 import java.util.Collection;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -61,5 +63,16 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
      */
     void save(Owner owner);
 
+    /**
+     * Returns a reference to the entity with the given identifier. Depending on how the JPA persistence provider is
+     * implemented this is very likely to always return an instance and throw an
+     * {@link javax.persistence.EntityNotFoundException} on first access. Some of them will reject invalid identifiers
+     * immediately.
+     *
+     * @param id must not be {@literal null}.
+     * @return a reference to the entity with the given identifier.
+     * @see EntityManager#getReference(Class, Object) for details on when an exception is thrown.
+     */
+    Owner getOne(Integer id);
 
 }

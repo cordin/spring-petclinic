@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +60,7 @@ public class VisitControllerTests {
 
     @Before
     public void init() {
-        given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
+        given(this.pets.findById(TEST_PET_ID)).willReturn(Optional.of(new Pet()));
     }
 
     @Test

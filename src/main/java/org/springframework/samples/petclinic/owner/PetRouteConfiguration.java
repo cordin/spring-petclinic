@@ -19,32 +19,33 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.samples.petclinic.visit.VisitRepository;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.function.RouterFunction;
 
 /**
- * Configuration of routes for Owner endpoints.
+ * Configuration of routes for Pet endpoints.
  * 
  * @author Cèsar Ordiñana
  */
 @Configuration
-public class OwnerRouteConfiguration {
+public class PetRouteConfiguration {
 
     @Bean
-    public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits, Validator validator) {
-        return new OwnerHandler(repository, visits, validator);
+    public PetHandler petHandler(PetRepository repository, OwnerRepository owners, Validator validator, ConversionService conversionService ) {
+        return new PetHandler(repository, owners, validator, conversionService);
     }
 
     @Bean
-    public RouterFunction<?> ownerRouterFunction(OwnerHandler handler) {
-        return route().GET("/owners/new", handler::initCreationForm)
-                .POST("/owners/new", handler::processCreationForm)
-                .GET("/owners/find", handler::initFindForm)
-                .GET("/owners", handler::processFindForm)
-                .GET("/owners/{ownerId}/edit", handler::initUpdateOwnerForm)
-                .POST("/owners/{ownerId}/edit", handler::processUpdateForm)
-                .GET("/owners/{ownerId}", handler::showOwner).build();
+    public RouterFunction<?> petRouterFunction(PetHandler handler) {
+        return route()
+                .path("/owners/{ownerId}", builder -> builder
+                    .GET("/pets/new", handler::initCreationForm)
+                    .POST("/pets/new", handler::processCreationForm)
+                    .GET("/pets/{petId}/edit", handler::initUpdateForm)
+                    .POST("/pets/{petId}/edit", handler::processUpdateForm)
+                )
+                .build();
     }
 
 }
