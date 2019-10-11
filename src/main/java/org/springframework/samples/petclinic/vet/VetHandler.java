@@ -15,6 +15,8 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import static org.springframework.web.servlet.function.ServerResponse.ok;
+
 import java.util.Map;
 
 import org.springframework.web.servlet.function.ServerRequest;
@@ -33,11 +35,11 @@ public class VetHandler {
     }
     
     public ServerResponse showVetList(ServerRequest request) {
-        return ServerResponse.ok().render("vets/vetList" , Map.of("vets", allVets()));
+        return ok().render("vets/vetList" , Map.of("vets", allVets()));
     }
     
     public ServerResponse showResourcesVetList(ServerRequest request) {
-        return ServerResponse.ok().body(allVets());
+        return ok().body(allVets());
     }
 
     private Vets allVets() {
