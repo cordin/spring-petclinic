@@ -20,6 +20,7 @@ import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.springframework.samples.petclinic.visit.VisitRepository;
@@ -43,12 +44,13 @@ class OwnerHandler {
     private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
     private final OwnerRepository owners;
     private final VisitRepository visits;
-    private final Validator validator;
+    private final BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
 
-    public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, Validator validator) {
+    public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, 
+            BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
         this.owners = clinicService;
         this.visits = visits;
-        this.validator = validator;
+        this.binderFactory = binderFactory;
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
@@ -68,7 +70,7 @@ class OwnerHandler {
     }
 
     private ServerResponse processOwnerForm(ServerRequest request, Consumer<Owner> operation) {
-        ServletRequestDataBinder binder = binder(new Owner(), "owner");
+        ServletRequestDataBinder binder = binderFactory.apply(new Owner(), "owner");
         binder.bind(request.servletRequest());
         binder.validate();
         BindingResult result = binder.getBindingResult();
@@ -86,7 +88,7 @@ class OwnerHandler {
     }
 
     public ServerResponse processFindForm(ServerRequest request) {
-        ServletRequestDataBinder binder = binder(new Owner(), "owner");
+        ServletRequestDataBinder binder = binderFactory.apply(new Owner(), "owner");
         binder.bind(request.servletRequest());
         Owner owner = (Owner) binder.getTarget();
 
@@ -128,13 +130,6 @@ class OwnerHandler {
                 .map(this::loadOwnerPetVisits)
                 .map(owner -> view(owner, "owners/ownerDetails"))
                 .orElseGet(notFound()::build);
-    }
-
-    private ServletRequestDataBinder binder(Object object, String name) {
-        ServletRequestDataBinder binder = new ServletRequestDataBinder(object, name);
-        binder.setDisallowedFields("id");
-        binder.setValidator(validator);
-        return binder;
     }
 
     private int ownerIdParam(ServerRequest request) {

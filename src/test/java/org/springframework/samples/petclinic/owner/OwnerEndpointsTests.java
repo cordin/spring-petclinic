@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.samples.petclinic.system.SystemRouteConfiguration;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,7 +56,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(OwnerRouteConfiguration.class)
+@WebMvcTest({OwnerRouteConfiguration.class, SystemRouteConfiguration.class})
 public class OwnerEndpointsTests {
 
     private static final int TEST_OWNER_ID = 1;

@@ -17,10 +17,13 @@ package org.springframework.samples.petclinic.owner;
 
 import static org.springframework.web.servlet.function.RouterFunctions.route;
 
+import java.util.function.BiFunction;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.validation.Validator;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.RouterFunction;
 
 /**
@@ -32,8 +35,9 @@ import org.springframework.web.servlet.function.RouterFunction;
 public class OwnerRouteConfiguration {
 
     @Bean
-    public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits, Validator validator) {
-        return new OwnerHandler(repository, visits, validator);
+    public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits,
+            BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
+        return new OwnerHandler(repository, visits, binderFactory);
     }
 
     @Bean

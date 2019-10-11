@@ -41,6 +41,7 @@ import org.springframework.samples.petclinic.owner.PetHandler;
 import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.samples.petclinic.owner.PetType;
 import org.springframework.samples.petclinic.owner.PetTypeFormatter;
+import org.springframework.samples.petclinic.system.SystemRouteConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -51,7 +52,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = PetRouteConfiguration.class,
+@WebMvcTest(value = {PetRouteConfiguration.class, SystemRouteConfiguration.class},
     includeFilters = @ComponentScan.Filter(
                             value = PetTypeFormatter.class,
                             type = FilterType.ASSIGNABLE_TYPE))

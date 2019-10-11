@@ -20,12 +20,11 @@ import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -41,14 +40,13 @@ class PetHandler {
     private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
     private final PetRepository pets;
     private final OwnerRepository owners;
-    private final Validator validator;
-    private final ConversionService conversionService;
+    private BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
 
-    public PetHandler(PetRepository pets, OwnerRepository owners, Validator validator, ConversionService conversionService ) {
+    public PetHandler(PetRepository pets, OwnerRepository owners, 
+            BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
         this.pets = pets;
         this.owners = owners;
-        this.validator = validator;
-        this.conversionService = conversionService;
+        this.binderFactory = binderFactory;
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
@@ -87,7 +85,7 @@ class PetHandler {
     
     private ServerResponse processPetForm(ServerRequest request,Consumer<Pet> preparePet, BiConsumer<Owner, Pet> successOperation) {
         Owner owner = owners.findById(ownerIdParam(request)).get();
-        ServletRequestDataBinder binder = binder(new Pet(), "pet");
+        ServletRequestDataBinder binder = binderFactory.apply(new Pet(), "pet");
         binder.bind(request.servletRequest());
         binder.addValidators(new PetValidator());
         binder.validate();
@@ -124,14 +122,6 @@ class PetHandler {
 
     private int petIdParam(ServerRequest request) {
         return Integer.parseInt(request.pathVariable("petId"));
-    }
-
-    private ServletRequestDataBinder binder(Object object, String name) {
-        ServletRequestDataBinder binder = new ServletRequestDataBinder(object, name);
-        binder.setDisallowedFields("id");
-        binder.setValidator(validator);
-        binder.setConversionService(conversionService);
-        return binder;
     }
 
     private ServerResponse view(Owner owner, BindingResult results, String view) {
