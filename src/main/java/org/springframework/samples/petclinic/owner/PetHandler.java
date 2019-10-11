@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.springframework.samples.petclinic.support.ServerResponseSupport;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.ServletRequestDataBinder;
@@ -41,12 +42,14 @@ class PetHandler {
     private final PetRepository pets;
     private final OwnerRepository owners;
     private BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
+    private final ServerResponseSupport<Owner> support;
 
     public PetHandler(PetRepository pets, OwnerRepository owners, 
             BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
         this.pets = pets;
         this.owners = owners;
         this.binderFactory = binderFactory;
+        this.support = new ServerResponseSupport<>("owner");
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
@@ -101,7 +104,7 @@ class PetHandler {
             return view(owner, result, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
         } else {
             successOperation.accept(owner, pet);
-            return redirectTo(owner);
+            return support.redirectTo(owner, "/owners");
         }
     }
 
@@ -109,11 +112,6 @@ class PetHandler {
         Pet pet = new Pet();
         owner.addPet(pet);
         return view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
-    }
-
-    private ServerResponse view(Owner owner, Pet pet, String view) {
-        return ok().render(view, 
-                Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
     }
 
     private int ownerIdParam(ServerRequest request) {
@@ -124,14 +122,15 @@ class PetHandler {
         return Integer.parseInt(request.pathVariable("petId"));
     }
 
+    private ServerResponse view(Owner owner, Pet pet, String view) {
+        return ok().render(view, 
+                Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
+    }
+
     private ServerResponse view(Owner owner, BindingResult results, String view) {
         Map<String, Object> model = results.getModel();
         model.put("owner", owner);
         model.put("types", pets.findPetTypes());
         return ok().render(view, model);
-    }
-
-    private ServerResponse redirectTo(Owner owner) {
-        return ok().render("redirect:/owners/" + owner.getId());
     }
 }

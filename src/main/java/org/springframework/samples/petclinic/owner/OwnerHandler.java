@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.springframework.samples.petclinic.support.ServerResponseSupport;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.ServletRequestDataBinder;
@@ -44,16 +45,18 @@ class OwnerHandler {
     private final OwnerRepository owners;
     private final VisitRepository visits;
     private final BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
+    private final ServerResponseSupport<Owner> support;
 
     public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, 
             BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
         this.owners = clinicService;
         this.visits = visits;
         this.binderFactory = binderFactory;
+        this.support = new ServerResponseSupport<>("owner");
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
-        return view(new Owner(), VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+        return support.view(new Owner(), VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
     }
 
     public ServerResponse processCreationForm(ServerRequest request) {
@@ -74,16 +77,16 @@ class OwnerHandler {
         binder.validate();
         BindingResult result = binder.getBindingResult();
         if (result.hasErrors()) {
-            return view(result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+            return support.view(result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
         } else {
             Owner owner = (Owner) binder.getTarget();
             operation.accept(owner);
-            return redirectTo(owner);
+            return support.redirectTo(owner, "/owners");
         }
     }
 
     public ServerResponse initFindForm(ServerRequest request) {
-        return view(new Owner(), "owners/findOwners");
+        return support.view(new Owner(), "owners/findOwners");
     }
 
     public ServerResponse processFindForm(ServerRequest request) {
@@ -102,10 +105,10 @@ class OwnerHandler {
             // no owners found
             BindingResult result = binder.getBindingResult();
             result.rejectValue("lastName", "notFound", "not found");
-            return view(result, "owners/findOwners");
+            return support.view(result, "owners/findOwners");
         } else if (results.size() == 1) {
             // 1 owner found
-            return redirectTo(results.iterator().next());
+            return support.redirectTo(results.iterator().next(), "/owners");
         } else {
             // multiple owners found
             return ok().render("owners/ownersList", Map.of("selections", results));
@@ -114,7 +117,7 @@ class OwnerHandler {
 
     public ServerResponse initUpdateOwnerForm(ServerRequest request) {
         return owners.findById(ownerIdParam(request))
-                .map(owner -> view(owner, VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
+                .map(owner -> support.view(owner, VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
                 .orElseGet(notFound()::build);
     }
 
@@ -127,24 +130,12 @@ class OwnerHandler {
     public ServerResponse showOwner(ServerRequest request) {
         return owners.findById(ownerIdParam(request))
                 .map(this::loadOwnerPetVisits)
-                .map(owner -> view(owner, "owners/ownerDetails"))
+                .map(owner -> support.view(owner, "owners/ownerDetails"))
                 .orElseGet(notFound()::build);
     }
 
     private int ownerIdParam(ServerRequest request) {
         return Integer.parseInt(request.pathVariable("ownerId"));
-    }
-
-    private ServerResponse view(Owner owner, String view) {
-        return ok().render(view, Map.of("owner", owner));
-    }
-
-    private ServerResponse view(BindingResult results, String view) {
-        return ok().render(view, results.getModel());
-    }
-
-    private ServerResponse redirectTo(Owner owner) {
-        return ok().render("redirect:/owners/" + owner.getId());
     }
 
     private Owner loadOwnerPetVisits(Owner owner) {
