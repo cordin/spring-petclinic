@@ -22,7 +22,6 @@ import java.util.function.BiFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.samples.petclinic.visit.VisitRepository;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.RouterFunction;
 

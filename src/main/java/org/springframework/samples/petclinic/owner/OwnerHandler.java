@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
