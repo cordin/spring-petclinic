@@ -48,8 +48,16 @@ public class ServerResponseSupport<T extends BaseEntity> {
         this.validator = validator;
         this.conversionService = conversionService;
     }
+    
+    public ServerResponse redirectTo(T entity, String path) {
+        return redirectTo(entity.getId(), path);
+    }
+    
+    public ServerResponse redirectTo(Integer id, String path) {
+        return ok().render(buildRedirectURI(id, path));
+    }
 
-    public String buildRedirectURI(T entity, String path) {
+    public String buildRedirectURI(Integer id, String path) {
         StringBuilder redirect = new StringBuilder("redirect:");
         if (!path.startsWith("/")) {
             redirect.append("/");
@@ -58,12 +66,8 @@ public class ServerResponseSupport<T extends BaseEntity> {
         if (!path.endsWith("/")) {
             redirect.append("/");
         }
-        redirect.append(entity.getId());
+        redirect.append(id);
         return redirect.toString();
-    }
-
-    public ServerResponse redirectTo(T entity, String path) {
-        return ok().render(buildRedirectURI(entity, path));
     }
 
     public ServerResponse view(T entity, String name, String view) {

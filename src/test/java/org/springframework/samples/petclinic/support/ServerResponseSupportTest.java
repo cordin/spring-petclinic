@@ -44,7 +44,7 @@ class ServerResponseSupportTest {
         SimpleEntity entity = new SimpleEntity(1);
         String[] paths = {"/entity", "entity/", "/entity/", "entity"};
         Stream.of(paths).forEach(
-            path -> assertThat(support.buildRedirectURI(entity, path)).isEqualTo("redirect:/entity/1") 
+            path -> assertThat(support.buildRedirectURI(entity.getId(), path)).isEqualTo("redirect:/entity/1") 
         );
     }
     
