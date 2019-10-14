@@ -45,16 +45,5 @@ public class SystemRouteConfiguration {
                 })
                 .build();
     }
-    
-    @Bean
-    public BiFunction<Object, String, ServletRequestDataBinder> servletRequestDataBinderFactory(Validator validator, ConversionService conversionService) {
-        return (object, name) -> {
-            ServletRequestDataBinder binder = new ServletRequestDataBinder(object, name);
-            binder.setDisallowedFields("id");
-            binder.setValidator(validator);
-            binder.setConversionService(conversionService);
-            return binder;
-        };
-    }
 
 }

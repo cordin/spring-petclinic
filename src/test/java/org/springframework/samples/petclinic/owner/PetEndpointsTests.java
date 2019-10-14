@@ -34,14 +34,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.samples.petclinic.owner.Owner;
-import org.springframework.samples.petclinic.owner.OwnerRepository;
-import org.springframework.samples.petclinic.owner.Pet;
-import org.springframework.samples.petclinic.owner.PetHandler;
-import org.springframework.samples.petclinic.owner.PetRepository;
-import org.springframework.samples.petclinic.owner.PetType;
-import org.springframework.samples.petclinic.owner.PetTypeFormatter;
-import org.springframework.samples.petclinic.system.SystemRouteConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -52,7 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Cèsar Ordiñana
  */
 @RunWith(SpringRunner.class)
-@WebMvcTest(value = {PetRouteConfiguration.class, SystemRouteConfiguration.class},
+@WebMvcTest(value = PetRouteConfiguration.class,
     includeFilters = @ComponentScan.Filter(
                             value = PetTypeFormatter.class,
                             type = FilterType.ASSIGNABLE_TYPE))

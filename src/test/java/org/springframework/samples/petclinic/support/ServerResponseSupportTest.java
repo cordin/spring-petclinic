@@ -16,7 +16,6 @@
 package org.springframework.samples.petclinic.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.stream.Stream;
 
@@ -37,7 +36,7 @@ class ServerResponseSupportTest {
     
     @BeforeAll
     static void prepare() {
-        support = new ServerResponseSupport<>("entity");
+        support = new ServerResponseSupport<>(null, null);
     }
     
     @Test
@@ -52,7 +51,7 @@ class ServerResponseSupportTest {
     @Test
     void viewEntity() {
         SimpleEntity entity = new SimpleEntity(1);
-        ServerResponse view = support.view(entity, "entityView");
+        ServerResponse view = support.view(entity, "entity", "entityView");
         assertThat(view.statusCode()).isEqualTo(HttpStatus.OK);
         ServerResponse viewOther = support.view(entity, "entityOther", "entityView");
         assertThat(viewOther.statusCode()).isEqualTo(HttpStatus.OK);

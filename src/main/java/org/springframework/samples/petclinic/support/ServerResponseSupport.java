@@ -19,21 +19,34 @@ import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import java.util.Map;
 
+import org.springframework.core.convert.ConversionService;
+import org.springframework.lang.Nullable;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.ServerResponse;
 
 /**
- * Support methods for easier creation of {@link ServerResponse} values.
+ * Support methods for Spring MVC handler functions.
  * 
  * @author Cèsar Ordiñana
  */
 public class ServerResponseSupport<T extends BaseEntity> {
 
-    private final String defaultEntityModelName;
+    private final Validator validator;
+    private final ConversionService conversionService;
 
-    public ServerResponseSupport(String defaultEntityModelName) {
-        this.defaultEntityModelName = defaultEntityModelName;
+    /**
+     * Creates a new instance.
+     * 
+     * @param defaultEntityModelName
+     * @param validator
+     * @param conversionService
+     */
+    public ServerResponseSupport(Validator validator, ConversionService conversionService) {
+        this.validator = validator;
+        this.conversionService = conversionService;
     }
 
     public String buildRedirectURI(T entity, String path) {
@@ -53,16 +66,20 @@ public class ServerResponseSupport<T extends BaseEntity> {
         return ok().render(buildRedirectURI(entity, path));
     }
 
-    public ServerResponse view(T entity, String view) {
-        return view(entity, defaultEntityModelName, view);
-    }
-
     public ServerResponse view(T entity, String name, String view) {
         return ok().render(view, Map.of(name, entity));
     }
 
     public ServerResponse view(BindingResult results, String view) {
         return ok().render(view, results.getModel());
+    }
+
+    public ServletRequestDataBinder binder(@Nullable Object target, String objectName) {
+        ServletRequestDataBinder binder = new ServletRequestDataBinder(target, objectName);
+        binder.setDisallowedFields("id");
+        binder.setValidator(validator);
+        binder.setConversionService(conversionService);
+        return binder;
     }
 
 }

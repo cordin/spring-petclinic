@@ -20,12 +20,13 @@ import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.samples.petclinic.support.ServerResponseSupport;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -41,61 +42,52 @@ class PetHandler {
     private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
     private final PetRepository pets;
     private final OwnerRepository owners;
-    private BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
     private final ServerResponseSupport<Owner> support;
 
-    public PetHandler(PetRepository pets, OwnerRepository owners, 
-            BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
+    public PetHandler(PetRepository pets, OwnerRepository owners, Validator validator,
+            ConversionService conversionService) {
         this.pets = pets;
         this.owners = owners;
-        this.binderFactory = binderFactory;
-        this.support = new ServerResponseSupport<>("owner");
+        this.support = new ServerResponseSupport<>(validator, conversionService);
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
-        return owners.findById(ownerIdParam(request))
-                .map(this::createOrUpdatePetView)
-                .orElseGet(notFound()::build);
+        return owners.findById(ownerIdParam(request)).map(this::createOrUpdatePetView).orElseGet(notFound()::build);
     }
 
     public ServerResponse processCreationForm(ServerRequest request) {
-        return processPetForm(request, 
-                pet -> {}, 
-                (owner, pet) -> {
-                    pet.setOwner(owner);
-                    pets.save(pet);
-                });
+        return processPetForm(request, pet -> {
+        }, (owner, pet) -> {
+            pet.setOwner(owner);
+            pets.save(pet);
+        });
     }
 
     public ServerResponse initUpdateForm(ServerRequest request) {
-        return owners.findById(ownerIdParam(request))
-                .map(owner -> {
-                    return pets.findById(petIdParam(request))
-                            .map(pet -> view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM))
-                            .orElseGet(notFound()::build);
-                })
-                .orElseGet(notFound()::build);
+        return owners.findById(ownerIdParam(request)).map(owner -> {
+            return pets.findById(petIdParam(request)).map(pet -> view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM))
+                    .orElseGet(notFound()::build);
+        }).orElseGet(notFound()::build);
     }
-    
+
     public ServerResponse processUpdateForm(ServerRequest request) {
-        return processPetForm(request, 
-                pet -> pet.setId(petIdParam(request)),
-                (owner, pet) -> {
-                    pet.setOwner(owner);
-                    pets.save(pet);
-                });
+        return processPetForm(request, pet -> pet.setId(petIdParam(request)), (owner, pet) -> {
+            pet.setOwner(owner);
+            pets.save(pet);
+        });
     }
-    
-    private ServerResponse processPetForm(ServerRequest request,Consumer<Pet> preparePet, BiConsumer<Owner, Pet> successOperation) {
+
+    private ServerResponse processPetForm(ServerRequest request, Consumer<Pet> preparePet,
+            BiConsumer<Owner, Pet> successOperation) {
         Owner owner = owners.findById(ownerIdParam(request)).get();
-        ServletRequestDataBinder binder = binderFactory.apply(new Pet(), "pet");
+        ServletRequestDataBinder binder = support.binder(new Pet(), "pet");
         binder.bind(request.servletRequest());
         binder.addValidators(new PetValidator());
         binder.validate();
         BindingResult result = binder.getBindingResult();
         Pet pet = (Pet) binder.getTarget();
         preparePet.accept(pet);
-        
+
         if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
             result.rejectValue("name", "duplicate", "already exists");
         }
@@ -123,8 +115,7 @@ class PetHandler {
     }
 
     private ServerResponse view(Owner owner, Pet pet, String view) {
-        return ok().render(view, 
-                Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
+        return ok().render(view, Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
     }
 
     private ServerResponse view(Owner owner, BindingResult results, String view) {

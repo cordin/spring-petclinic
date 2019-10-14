@@ -20,12 +20,13 @@ import static org.springframework.web.servlet.function.ServerResponse.ok;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.springframework.core.convert.ConversionService;
 import org.springframework.samples.petclinic.support.ServerResponseSupport;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
@@ -44,19 +45,17 @@ class OwnerHandler {
     private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
     private final OwnerRepository owners;
     private final VisitRepository visits;
-    private final BiFunction<Object, String, ServletRequestDataBinder> binderFactory;
     private final ServerResponseSupport<Owner> support;
 
-    public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, 
-            BiFunction<Object, String, ServletRequestDataBinder> binderFactory) {
+    public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, Validator validator,
+            ConversionService conversionService) {
         this.owners = clinicService;
         this.visits = visits;
-        this.binderFactory = binderFactory;
-        this.support = new ServerResponseSupport<>("owner");
+        this.support = new ServerResponseSupport<>(validator, conversionService);
     }
 
     public ServerResponse initCreationForm(ServerRequest request) {
-        return support.view(new Owner(), VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+        return support.view(new Owner(), "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
     }
 
     public ServerResponse processCreationForm(ServerRequest request) {
@@ -72,7 +71,7 @@ class OwnerHandler {
     }
 
     private ServerResponse processOwnerForm(ServerRequest request, Consumer<Owner> operation) {
-        ServletRequestDataBinder binder = binderFactory.apply(new Owner(), "owner");
+        ServletRequestDataBinder binder = support.binder(new Owner(), "owner");
         binder.bind(request.servletRequest());
         binder.validate();
         BindingResult result = binder.getBindingResult();
@@ -86,11 +85,11 @@ class OwnerHandler {
     }
 
     public ServerResponse initFindForm(ServerRequest request) {
-        return support.view(new Owner(), "owners/findOwners");
+        return support.view(new Owner(), "owner", "owners/findOwners");
     }
 
     public ServerResponse processFindForm(ServerRequest request) {
-        ServletRequestDataBinder binder = binderFactory.apply(new Owner(), "owner");
+        ServletRequestDataBinder binder = support.binder    (new Owner(), "owner");
         binder.bind(request.servletRequest());
         Owner owner = (Owner) binder.getTarget();
 
@@ -117,7 +116,7 @@ class OwnerHandler {
 
     public ServerResponse initUpdateOwnerForm(ServerRequest request) {
         return owners.findById(ownerIdParam(request))
-                .map(owner -> support.view(owner, VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
+                .map(owner -> support.view(owner, "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
                 .orElseGet(notFound()::build);
     }
 
@@ -130,7 +129,7 @@ class OwnerHandler {
     public ServerResponse showOwner(ServerRequest request) {
         return owners.findById(ownerIdParam(request))
                 .map(this::loadOwnerPetVisits)
-                .map(owner -> support.view(owner, "owners/ownerDetails"))
+                .map(owner -> support.view(owner, "owner", "owners/ownerDetails"))
                 .orElseGet(notFound()::build);
     }
 
