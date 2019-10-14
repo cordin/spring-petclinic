@@ -41,6 +41,7 @@ import org.springframework.samples.petclinic.model.Person;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author Michael Isvy
+ * @author Cèsar Ordiñana 
  */
 @Entity
 @Table(name = "owners")
@@ -126,24 +127,18 @@ public class Owner extends Person {
      * @param name to test
      * @return true if pet name is already in use
      */
-    public Pet getPet(String name, boolean ignoreNew) {
-        name = name.toLowerCase();
-        for (Pet pet : getPetsInternal()) {
-            if (!ignoreNew || !pet.isNew()) {
-                String compName = pet.getName();
-                compName = compName.toLowerCase();
-                if (compName.equals(name)) {
-                    return pet;
-                }
-            }
-        }
-        return null;
+    public Pet getPet(final String name, boolean ignoreNew) {
+        String lcName = name.toLowerCase();
+        return getPetsInternal().stream()
+                .filter(pet -> !ignoreNew || !pet.isNew())
+                .filter(pet -> pet.getName().toLowerCase().equals(lcName))
+                .findFirst()
+                .orElse(null);
     }
-
+    
     @Override
     public String toString() {
         return new ToStringCreator(this)
-
                 .append("id", this.getId()).append("new", this.isNew())
                 .append("lastName", this.getLastName())
                 .append("firstName", this.getFirstName()).append("address", this.address)
