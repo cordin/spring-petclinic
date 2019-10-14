@@ -88,7 +88,7 @@ class PetHandler {
         Pet pet = (Pet) binder.getTarget();
         preparePet.accept(pet);
 
-        if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
+        if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true).isPresent()) {
             result.rejectValue("name", "duplicate", "already exists");
         }
         if (result.hasErrors()) {

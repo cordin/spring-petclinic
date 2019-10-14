@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -117,7 +118,7 @@ public class Owner extends Person {
      * @param name to test
      * @return true if pet name is already in use
      */
-    public Pet getPet(String name) {
+    public Optional<Pet> getPet(String name) {
         return getPet(name, false);
     }
 
@@ -127,13 +128,12 @@ public class Owner extends Person {
      * @param name to test
      * @return true if pet name is already in use
      */
-    public Pet getPet(final String name, boolean ignoreNew) {
+    public Optional<Pet> getPet(final String name, boolean ignoreNew) {
         String lcName = name.toLowerCase();
         return getPetsInternal().stream()
                 .filter(pet -> !ignoreNew || !pet.isNew())
                 .filter(pet -> pet.getName().toLowerCase().equals(lcName))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
     
     @Override
