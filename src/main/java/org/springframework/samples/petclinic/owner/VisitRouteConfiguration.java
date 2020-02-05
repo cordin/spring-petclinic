@@ -26,23 +26,22 @@ import org.springframework.web.servlet.function.RouterFunction;
 
 /**
  * Configuration of routes for Visit endpoints.
- * 
+ *
  * @author Cèsar Ordiñana
  */
 @Configuration
 public class VisitRouteConfiguration {
 
-    @Bean
-    public VisitHandler visitHandler(VisitRepository repository, PetRepository pets, Validator validator,
-            ConversionService conversionService) {
-        return new VisitHandler(repository, pets, validator, conversionService);
-    }
+	@Bean
+	public VisitHandler visitHandler(VisitRepository repository, PetRepository pets, Validator validator,
+			ConversionService conversionService) {
+		return new VisitHandler(repository, pets, validator, conversionService);
+	}
 
-    @Bean
-    public RouterFunction<?> visitRouterFunction(VisitHandler handler) {
-        return route()
-                .GET("/owners/*/pets/{petId}/visits/new", handler::initNewVisitForm)
-                .POST("/owners/{ownerId}/pets/{petId}/visits/new", handler::processNewVisitForm).build();
-    }
+	@Bean
+	public RouterFunction<?> visitRouterFunction(VisitHandler handler) {
+		return route().GET("/owners/*/pets/{petId}/visits/new", handler::initNewVisitForm)
+				.POST("/owners/{ownerId}/pets/{petId}/visits/new", handler::processNewVisitForm).build();
+	}
 
 }

@@ -25,28 +25,23 @@ import org.springframework.web.servlet.function.RouterFunction;
 
 /**
  * Configuration of routes for Pet endpoints.
- * 
+ *
  * @author Cèsar Ordiñana
  */
 @Configuration
 public class PetRouteConfiguration {
 
-    @Bean
-    public PetHandler petHandler(PetRepository repository, OwnerRepository owners, Validator validator,
-            ConversionService conversionService) {
-        return new PetHandler(repository, owners, validator, conversionService);
-    }
+	@Bean
+	public PetHandler petHandler(PetRepository repository, OwnerRepository owners, Validator validator,
+			ConversionService conversionService) {
+		return new PetHandler(repository, owners, validator, conversionService);
+	}
 
-    @Bean
-    public RouterFunction<?> petRouterFunction(PetHandler handler) {
-        return route()
-                .path("/owners/{ownerId}", builder -> builder
-                    .GET("/pets/new", handler::initCreationForm)
-                    .POST("/pets/new", handler::processCreationForm)
-                    .GET("/pets/{petId}/edit", handler::initUpdateForm)
-                    .POST("/pets/{petId}/edit", handler::processUpdateForm)
-                )
-                .build();
-    }
+	@Bean
+	public RouterFunction<?> petRouterFunction(PetHandler handler) {
+		return route().path("/owners/{ownerId}", builder -> builder.GET("/pets/new", handler::initCreationForm)
+				.POST("/pets/new", handler::processCreationForm).GET("/pets/{petId}/edit", handler::initUpdateForm)
+				.POST("/pets/{petId}/edit", handler::processUpdateForm)).build();
+	}
 
 }

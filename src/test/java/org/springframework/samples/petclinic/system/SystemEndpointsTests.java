@@ -42,13 +42,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(SystemRouteConfiguration.class)
 public class SystemEndpointsTests {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Test
-    public void testTriggerException() throws Exception {
-        mockMvc.perform(get("/oups")).andExpect(view().name("exception"))
-                .andExpect(model().attributeExists("exception"))
-                .andExpect(forwardedUrl("exception")).andExpect(status().isOk());
-    }
+	@Test
+	public void testTriggerException() throws Exception {
+		mockMvc.perform(get("/oups")).andExpect(view().name("exception"))
+				.andExpect(model().attributeExists("exception")).andExpect(forwardedUrl("exception"))
+				.andExpect(status().isOk());
+	}
+
 }

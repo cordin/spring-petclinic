@@ -25,22 +25,21 @@ import static org.springframework.web.servlet.function.RouterFunctions.route;
 
 /**
  * Configuration of routes for Vet functions.
+ *
  * @author Cèsar Ordiñana
  */
 @Configuration
 public class VetRouteConfiguration {
-    
-    @Bean 
-    public VetHandler vetHandler(VetRepository repository) {
-        return new VetHandler(repository);
-    }
 
-    @Bean
-    public RouterFunction<?> vetRouterFunction(VetHandler handler) {
-        return route()
-                .GET("/vets", accept(APPLICATION_JSON), handler::showResourcesVetList)
-                .GET("/vets.html", handler::showVetList)
-                .build();
-    }
+	@Bean
+	public VetHandler vetHandler(VetRepository repository) {
+		return new VetHandler(repository);
+	}
+
+	@Bean
+	public RouterFunction<?> vetRouterFunction(VetHandler handler) {
+		return route().GET("/vets", accept(APPLICATION_JSON), handler::showResourcesVetList)
+				.GET("/vets.html", handler::showVetList).build();
+	}
 
 }

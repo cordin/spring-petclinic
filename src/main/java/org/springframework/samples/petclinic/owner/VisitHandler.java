@@ -39,66 +39,70 @@ import org.springframework.web.servlet.function.ServerResponse;
  */
 class VisitHandler {
 
-    private final VisitRepository visits;
-    private final PetRepository pets;
-    private final ServerResponseSupport<Pet> support;
+	private final VisitRepository visits;
 
-    public VisitHandler(VisitRepository visits, PetRepository pets, Validator validator,
-            ConversionService conversionService) {
-        this.visits = visits;
-        this.pets = pets;
-        this.support = new ServerResponseSupport<>(validator, conversionService);
-    }
+	private final PetRepository pets;
 
-    public ServerResponse initNewVisitForm(ServerRequest request) {
-        Pet pet = findPetWithVisits(request);
-        Visit visit = new Visit();
-        pet.addVisit(visit);
+	private final ServerResponseSupport<Pet> support;
 
-        return view(pet, visit, "pets/createOrUpdateVisitForm");
-    }
+	public VisitHandler(VisitRepository visits, PetRepository pets, Validator validator,
+			ConversionService conversionService) {
+		this.visits = visits;
+		this.pets = pets;
+		this.support = new ServerResponseSupport<>(validator, conversionService);
+	}
 
-    public ServerResponse processNewVisitForm(ServerRequest request) {
-        Pet pet = findPetWithVisits(request);
-        Visit visit = new Visit();
-        pet.addVisit(visit);
+	public ServerResponse initNewVisitForm(ServerRequest request) {
+		Pet pet = findPetWithVisits(request);
+		Visit visit = new Visit();
+		pet.addVisit(visit);
 
-        ServletRequestDataBinder binder = support.binder(visit, "visit");
-        binder.bind(request.servletRequest());
-        binder.validate();
-        BindingResult result = binder.getBindingResult();
-        visit = (Visit)result.getTarget();
+		return view(pet, visit, "pets/createOrUpdateVisitForm");
+	}
 
-        if (result.hasErrors()) {
-            return view(pet, result, "pets/createOrUpdateVisitForm");
-        } else {
-            this.visits.save(visit);
-            return support.redirectTo(ownerIdParam(request), "/owners");
-        }
-    }
+	public ServerResponse processNewVisitForm(ServerRequest request) {
+		Pet pet = findPetWithVisits(request);
+		Visit visit = new Visit();
+		pet.addVisit(visit);
 
-    private Pet findPetWithVisits(ServerRequest request) {
-        Integer petId = petIdParam(request);
-        Pet pet = this.pets.findById(petId).get();
-        pet.setVisitsInternal(this.visits.findByPetId(petId));
-        return pet;
-    }
+		ServletRequestDataBinder binder = support.binder(visit, "visit");
+		binder.bind(request.servletRequest());
+		binder.validate();
+		BindingResult result = binder.getBindingResult();
+		visit = (Visit) result.getTarget();
 
-    private Integer petIdParam(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("petId"));
-    }
+		if (result.hasErrors()) {
+			return view(pet, result, "pets/createOrUpdateVisitForm");
+		}
+		else {
+			this.visits.save(visit);
+			return support.redirectTo(ownerIdParam(request), "/owners");
+		}
+	}
 
-    private int ownerIdParam(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("ownerId"));
-    }
+	private Pet findPetWithVisits(ServerRequest request) {
+		Integer petId = petIdParam(request);
+		Pet pet = this.pets.findById(petId).get();
+		pet.setVisitsInternal(this.visits.findByPetId(petId));
+		return pet;
+	}
 
-    private ServerResponse view(Pet pet, Visit visit, String view) {
-        return ok().render(view, Map.of("pet", pet, "visit", visit));
-    }
+	private Integer petIdParam(ServerRequest request) {
+		return Integer.parseInt(request.pathVariable("petId"));
+	}
 
-    private ServerResponse view(Pet pet, BindingResult results, String view) {
-        Map<String, Object> model = results.getModel();
-        model.put("pet", pet);
-        return ok().render(view, model);
-    }
+	private int ownerIdParam(ServerRequest request) {
+		return Integer.parseInt(request.pathVariable("ownerId"));
+	}
+
+	private ServerResponse view(Pet pet, Visit visit, String view) {
+		return ok().render(view, Map.of("pet", pet, "visit", visit));
+	}
+
+	private ServerResponse view(Pet pet, BindingResult results, String view) {
+		Map<String, Object> model = results.getModel();
+		model.put("pet", pet);
+		return ok().render(view, model);
+	}
+
 }

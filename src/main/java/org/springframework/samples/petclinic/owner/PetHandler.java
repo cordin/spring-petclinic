@@ -39,89 +39,94 @@ import org.springframework.web.servlet.function.ServerResponse;
  */
 class PetHandler {
 
-    private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
-    private final PetRepository pets;
-    private final OwnerRepository owners;
-    private final ServerResponseSupport<Owner> support;
+	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
-    public PetHandler(PetRepository pets, OwnerRepository owners, Validator validator,
-            ConversionService conversionService) {
-        this.pets = pets;
-        this.owners = owners;
-        this.support = new ServerResponseSupport<>(validator, conversionService);
-    }
+	private final PetRepository pets;
 
-    public ServerResponse initCreationForm(ServerRequest request) {
-        return owners.findById(ownerIdParam(request)).map(this::createOrUpdatePetView).orElseGet(notFound()::build);
-    }
+	private final OwnerRepository owners;
 
-    public ServerResponse processCreationForm(ServerRequest request) {
-        return processPetForm(request, pet -> {
-        }, (owner, pet) -> {
-            pet.setOwner(owner);
-            pets.save(pet);
-        });
-    }
+	private final ServerResponseSupport<Owner> support;
 
-    public ServerResponse initUpdateForm(ServerRequest request) {
-        return owners.findById(ownerIdParam(request)).map(owner -> {
-            return pets.findById(petIdParam(request)).map(pet -> view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM))
-                    .orElseGet(notFound()::build);
-        }).orElseGet(notFound()::build);
-    }
+	public PetHandler(PetRepository pets, OwnerRepository owners, Validator validator,
+			ConversionService conversionService) {
+		this.pets = pets;
+		this.owners = owners;
+		this.support = new ServerResponseSupport<>(validator, conversionService);
+	}
 
-    public ServerResponse processUpdateForm(ServerRequest request) {
-        return processPetForm(request, pet -> pet.setId(petIdParam(request)), (owner, pet) -> {
-            pet.setOwner(owner);
-            pets.save(pet);
-        });
-    }
+	public ServerResponse initCreationForm(ServerRequest request) {
+		return owners.findById(ownerIdParam(request)).map(this::createOrUpdatePetView).orElseGet(notFound()::build);
+	}
 
-    private ServerResponse processPetForm(ServerRequest request, Consumer<Pet> preparePet,
-            BiConsumer<Owner, Pet> successOperation) {
-        Owner owner = owners.findById(ownerIdParam(request)).get();
-        ServletRequestDataBinder binder = support.binder(new Pet(), "pet");
-        binder.bind(request.servletRequest());
-        binder.addValidators(new PetValidator());
-        binder.validate();
-        BindingResult result = binder.getBindingResult();
-        Pet pet = (Pet) binder.getTarget();
-        preparePet.accept(pet);
+	public ServerResponse processCreationForm(ServerRequest request) {
+		return processPetForm(request, pet -> {
+		}, (owner, pet) -> {
+			pet.setOwner(owner);
+			pets.save(pet);
+		});
+	}
 
-        if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true).isPresent()) {
-            result.rejectValue("name", "duplicate", "already exists");
-        }
-        if (result.hasErrors()) {
-            pet.setOwner(owner);
-            return view(owner, result, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
-        } else {
-            successOperation.accept(owner, pet);
-            return support.redirectTo(owner, "/owners");
-        }
-    }
+	public ServerResponse initUpdateForm(ServerRequest request) {
+		return owners.findById(ownerIdParam(request)).map(owner -> {
+			return pets.findById(petIdParam(request)).map(pet -> view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM))
+					.orElseGet(notFound()::build);
+		}).orElseGet(notFound()::build);
+	}
 
-    private ServerResponse createOrUpdatePetView(Owner owner) {
-        Pet pet = new Pet();
-        owner.addPet(pet);
-        return view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
-    }
+	public ServerResponse processUpdateForm(ServerRequest request) {
+		return processPetForm(request, pet -> pet.setId(petIdParam(request)), (owner, pet) -> {
+			pet.setOwner(owner);
+			pets.save(pet);
+		});
+	}
 
-    private int ownerIdParam(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("ownerId"));
-    }
+	private ServerResponse processPetForm(ServerRequest request, Consumer<Pet> preparePet,
+			BiConsumer<Owner, Pet> successOperation) {
+		Owner owner = owners.findById(ownerIdParam(request)).get();
+		ServletRequestDataBinder binder = support.binder(new Pet(), "pet");
+		binder.bind(request.servletRequest());
+		binder.addValidators(new PetValidator());
+		binder.validate();
+		BindingResult result = binder.getBindingResult();
+		Pet pet = (Pet) binder.getTarget();
+		preparePet.accept(pet);
 
-    private int petIdParam(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("petId"));
-    }
+		if (StringUtils.hasLength(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true).isPresent()) {
+			result.rejectValue("name", "duplicate", "already exists");
+		}
+		if (result.hasErrors()) {
+			pet.setOwner(owner);
+			return view(owner, result, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+		}
+		else {
+			successOperation.accept(owner, pet);
+			return support.redirectTo(owner, "/owners");
+		}
+	}
 
-    private ServerResponse view(Owner owner, Pet pet, String view) {
-        return ok().render(view, Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
-    }
+	private ServerResponse createOrUpdatePetView(Owner owner) {
+		Pet pet = new Pet();
+		owner.addPet(pet);
+		return view(owner, pet, VIEWS_PETS_CREATE_OR_UPDATE_FORM);
+	}
 
-    private ServerResponse view(Owner owner, BindingResult results, String view) {
-        Map<String, Object> model = results.getModel();
-        model.put("owner", owner);
-        model.put("types", pets.findPetTypes());
-        return ok().render(view, model);
-    }
+	private int ownerIdParam(ServerRequest request) {
+		return Integer.parseInt(request.pathVariable("ownerId"));
+	}
+
+	private int petIdParam(ServerRequest request) {
+		return Integer.parseInt(request.pathVariable("petId"));
+	}
+
+	private ServerResponse view(Owner owner, Pet pet, String view) {
+		return ok().render(view, Map.of("owner", owner, "pet", pet, "types", pets.findPetTypes()));
+	}
+
+	private ServerResponse view(Owner owner, BindingResult results, String view) {
+		Map<String, Object> model = results.getModel();
+		model.put("owner", owner);
+		model.put("types", pets.findPetTypes());
+		return ok().render(view, model);
+	}
+
 }

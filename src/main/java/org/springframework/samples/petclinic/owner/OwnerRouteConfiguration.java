@@ -26,27 +26,25 @@ import org.springframework.web.servlet.function.RouterFunction;
 
 /**
  * Configuration of routes for Owner endpoints.
- * 
+ *
  * @author Cèsar Ordiñana
  */
 @Configuration
 public class OwnerRouteConfiguration {
 
-    @Bean
-    public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits, Validator validator,
-            ConversionService conversionService) {
-        return new OwnerHandler(repository, visits, validator, conversionService);
-    }
+	@Bean
+	public OwnerHandler ownerHandler(OwnerRepository repository, VisitRepository visits, Validator validator,
+			ConversionService conversionService) {
+		return new OwnerHandler(repository, visits, validator, conversionService);
+	}
 
-    @Bean
-    public RouterFunction<?> ownerRouterFunction(OwnerHandler handler) {
-        return route().GET("/owners/new", handler::initCreationForm)
-                .POST("/owners/new", handler::processCreationForm)
-                .GET("/owners/find", handler::initFindForm)
-                .GET("/owners", handler::processFindForm)
-                .GET("/owners/{ownerId}/edit", handler::initUpdateOwnerForm)
-                .POST("/owners/{ownerId}/edit", handler::processUpdateForm)
-                .GET("/owners/{ownerId}", handler::showOwner).build();
-    }
+	@Bean
+	public RouterFunction<?> ownerRouterFunction(OwnerHandler handler) {
+		return route().GET("/owners/new", handler::initCreationForm).POST("/owners/new", handler::processCreationForm)
+				.GET("/owners/find", handler::initFindForm).GET("/owners", handler::processFindForm)
+				.GET("/owners/{ownerId}/edit", handler::initUpdateOwnerForm)
+				.POST("/owners/{ownerId}/edit", handler::processUpdateForm).GET("/owners/{ownerId}", handler::showOwner)
+				.build();
+	}
 
 }

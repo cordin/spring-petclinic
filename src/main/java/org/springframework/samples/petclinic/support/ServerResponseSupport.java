@@ -29,61 +29,61 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 /**
  * Support methods for Spring MVC handler functions.
- * 
+ *
  * @author Cèsar Ordiñana
  */
 public class ServerResponseSupport<T extends BaseEntity> {
 
-    private final Validator validator;
-    private final ConversionService conversionService;
+	private final Validator validator;
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param defaultEntityModelName
-     * @param validator
-     * @param conversionService
-     */
-    public ServerResponseSupport(Validator validator, ConversionService conversionService) {
-        this.validator = validator;
-        this.conversionService = conversionService;
-    }
-    
-    public ServerResponse redirectTo(T entity, String path) {
-        return redirectTo(entity.getId(), path);
-    }
-    
-    public ServerResponse redirectTo(Integer id, String path) {
-        return ok().render(buildRedirectURI(id, path));
-    }
+	private final ConversionService conversionService;
 
-    public String buildRedirectURI(Integer id, String path) {
-        StringBuilder redirect = new StringBuilder("redirect:");
-        if (!path.startsWith("/")) {
-            redirect.append("/");
-        }
-        redirect.append(path);
-        if (!path.endsWith("/")) {
-            redirect.append("/");
-        }
-        redirect.append(id);
-        return redirect.toString();
-    }
+	/**
+	 * Creates a new instance.
+	 * @param defaultEntityModelName
+	 * @param validator
+	 * @param conversionService
+	 */
+	public ServerResponseSupport(Validator validator, ConversionService conversionService) {
+		this.validator = validator;
+		this.conversionService = conversionService;
+	}
 
-    public ServerResponse view(T entity, String name, String view) {
-        return ok().render(view, Map.of(name, entity));
-    }
+	public ServerResponse redirectTo(T entity, String path) {
+		return redirectTo(entity.getId(), path);
+	}
 
-    public ServerResponse view(BindingResult results, String view) {
-        return ok().render(view, results.getModel());
-    }
+	public ServerResponse redirectTo(Integer id, String path) {
+		return ok().render(buildRedirectURI(id, path));
+	}
 
-    public ServletRequestDataBinder binder(@Nullable Object target, String objectName) {
-        ServletRequestDataBinder binder = new ServletRequestDataBinder(target, objectName);
-        binder.setDisallowedFields("id");
-        binder.setValidator(validator);
-        binder.setConversionService(conversionService);
-        return binder;
-    }
+	public String buildRedirectURI(Integer id, String path) {
+		StringBuilder redirect = new StringBuilder("redirect:");
+		if (!path.startsWith("/")) {
+			redirect.append("/");
+		}
+		redirect.append(path);
+		if (!path.endsWith("/")) {
+			redirect.append("/");
+		}
+		redirect.append(id);
+		return redirect.toString();
+	}
+
+	public ServerResponse view(T entity, String name, String view) {
+		return ok().render(view, Map.of(name, entity));
+	}
+
+	public ServerResponse view(BindingResult results, String view) {
+		return ok().render(view, results.getModel());
+	}
+
+	public ServletRequestDataBinder binder(@Nullable Object target, String objectName) {
+		ServletRequestDataBinder binder = new ServletRequestDataBinder(target, objectName);
+		binder.setDisallowedFields("id");
+		binder.setValidator(validator);
+		binder.setConversionService(conversionService);
+		return binder;
+	}
 
 }

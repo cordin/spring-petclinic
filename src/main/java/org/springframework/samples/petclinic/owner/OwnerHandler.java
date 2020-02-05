@@ -33,7 +33,7 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 /**
  * Handler functions for the Owner class.
- * 
+ *
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
@@ -42,107 +42,111 @@ import org.springframework.web.servlet.function.ServerResponse;
  */
 class OwnerHandler {
 
-    private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
-    private final OwnerRepository owners;
-    private final VisitRepository visits;
-    private final ServerResponseSupport<Owner> support;
+	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
-    public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, Validator validator,
-            ConversionService conversionService) {
-        this.owners = clinicService;
-        this.visits = visits;
-        this.support = new ServerResponseSupport<>(validator, conversionService);
-    }
+	private final OwnerRepository owners;
 
-    public ServerResponse initCreationForm(ServerRequest request) {
-        return support.view(new Owner(), "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
-    }
+	private final VisitRepository visits;
 
-    public ServerResponse processCreationForm(ServerRequest request) {
-        return processOwnerForm(request, owners::save);
-    }
+	private final ServerResponseSupport<Owner> support;
 
-    public ServerResponse processUpdateForm(ServerRequest request) {
-        return processOwnerForm(request, owner -> {
-            int ownerId = ownerIdParam(request);
-            owner.setId(ownerId);
-            owners.save(owner);
-        });
-    }
+	public OwnerHandler(OwnerRepository clinicService, VisitRepository visits, Validator validator,
+			ConversionService conversionService) {
+		this.owners = clinicService;
+		this.visits = visits;
+		this.support = new ServerResponseSupport<>(validator, conversionService);
+	}
 
-    private ServerResponse processOwnerForm(ServerRequest request, Consumer<Owner> operation) {
-        ServletRequestDataBinder binder = support.binder(new Owner(), "owner");
-        binder.bind(request.servletRequest());
-        binder.validate();
-        BindingResult result = binder.getBindingResult();
-        if (result.hasErrors()) {
-            return support.view(result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
-        } else {
-            Owner owner = (Owner) binder.getTarget();
-            operation.accept(owner);
-            return support.redirectTo(owner, "/owners");
-        }
-    }
+	public ServerResponse initCreationForm(ServerRequest request) {
+		return support.view(new Owner(), "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+	}
 
-    public ServerResponse initFindForm(ServerRequest request) {
-        return support.view(new Owner(), "owner", "owners/findOwners");
-    }
+	public ServerResponse processCreationForm(ServerRequest request) {
+		return processOwnerForm(request, owners::save);
+	}
 
-    public ServerResponse processFindForm(ServerRequest request) {
-        ServletRequestDataBinder binder = support.binder    (new Owner(), "owner");
-        binder.bind(request.servletRequest());
-        Owner owner = (Owner) binder.getTarget();
+	public ServerResponse processUpdateForm(ServerRequest request) {
+		return processOwnerForm(request, owner -> {
+			int ownerId = ownerIdParam(request);
+			owner.setId(ownerId);
+			owners.save(owner);
+		});
+	}
 
-        // allow parameterless GET request for /owners to return all records
-        if (owner.getLastName() == null) {
-            owner.setLastName(""); // empty string signifies broadest possible search
-        }
+	private ServerResponse processOwnerForm(ServerRequest request, Consumer<Owner> operation) {
+		ServletRequestDataBinder binder = support.binder(new Owner(), "owner");
+		binder.bind(request.servletRequest());
+		binder.validate();
+		BindingResult result = binder.getBindingResult();
+		if (result.hasErrors()) {
+			return support.view(result, VIEWS_OWNER_CREATE_OR_UPDATE_FORM);
+		}
+		else {
+			Owner owner = (Owner) binder.getTarget();
+			operation.accept(owner);
+			return support.redirectTo(owner, "/owners");
+		}
+	}
 
-        // find owners by last name
-        Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
-        if (results.isEmpty()) {
-            // no owners found
-            BindingResult result = binder.getBindingResult();
-            result.rejectValue("lastName", "notFound", "not found");
-            return support.view(result, "owners/findOwners");
-        } else if (results.size() == 1) {
-            // 1 owner found
-            return support.redirectTo(results.iterator().next(), "/owners");
-        } else {
-            // multiple owners found
-            return ok().render("owners/ownersList", Map.of("selections", results));
-        }
-    }
+	public ServerResponse initFindForm(ServerRequest request) {
+		return support.view(new Owner(), "owner", "owners/findOwners");
+	}
 
-    public ServerResponse initUpdateOwnerForm(ServerRequest request) {
-        return owners.findById(ownerIdParam(request))
-                .map(owner -> support.view(owner, "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
-                .orElseGet(notFound()::build);
-    }
+	public ServerResponse processFindForm(ServerRequest request) {
+		ServletRequestDataBinder binder = support.binder(new Owner(), "owner");
+		binder.bind(request.servletRequest());
+		Owner owner = (Owner) binder.getTarget();
 
-    /**
-     * Custom handler for displaying an owner.
-     *
-     * @param ownerId the ID of the owner to display
-     * @return a ModelMap with the model attributes for the view
-     */
-    public ServerResponse showOwner(ServerRequest request) {
-        return owners.findById(ownerIdParam(request))
-                .map(this::loadOwnerPetVisits)
-                .map(owner -> support.view(owner, "owner", "owners/ownerDetails"))
-                .orElseGet(notFound()::build);
-    }
+		// allow parameterless GET request for /owners to return all records
+		if (owner.getLastName() == null) {
+			owner.setLastName(""); // empty string signifies broadest possible search
+		}
 
-    private int ownerIdParam(ServerRequest request) {
-        return Integer.parseInt(request.pathVariable("ownerId"));
-    }
+		// find owners by last name
+		Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
+		if (results.isEmpty()) {
+			// no owners found
+			BindingResult result = binder.getBindingResult();
+			result.rejectValue("lastName", "notFound", "not found");
+			return support.view(result, "owners/findOwners");
+		}
+		else if (results.size() == 1) {
+			// 1 owner found
+			return support.redirectTo(results.iterator().next(), "/owners");
+		}
+		else {
+			// multiple owners found
+			return ok().render("owners/ownersList", Map.of("selections", results));
+		}
+	}
 
-    private Owner loadOwnerPetVisits(Owner owner) {
-        owner.getPets().stream().forEach(this::loadPetVisits);
-        return owner;
-    }
+	public ServerResponse initUpdateOwnerForm(ServerRequest request) {
+		return owners.findById(ownerIdParam(request))
+				.map(owner -> support.view(owner, "owner", VIEWS_OWNER_CREATE_OR_UPDATE_FORM))
+				.orElseGet(notFound()::build);
+	}
 
-    private void loadPetVisits(Pet pet) {
-        pet.setVisitsInternal(visits.findByPetId(pet.getId()));
-    }
+	/**
+	 * Custom handler for displaying an owner.
+	 * @param ownerId the ID of the owner to display
+	 * @return a ModelMap with the model attributes for the view
+	 */
+	public ServerResponse showOwner(ServerRequest request) {
+		return owners.findById(ownerIdParam(request)).map(this::loadOwnerPetVisits)
+				.map(owner -> support.view(owner, "owner", "owners/ownerDetails")).orElseGet(notFound()::build);
+	}
+
+	private int ownerIdParam(ServerRequest request) {
+		return Integer.parseInt(request.pathVariable("ownerId"));
+	}
+
+	private Owner loadOwnerPetVisits(Owner owner) {
+		owner.getPets().stream().forEach(this::loadPetVisits);
+		return owner;
+	}
+
+	private void loadPetVisits(Pet pet) {
+		pet.setVisitsInternal(visits.findByPetId(pet.getId()));
+	}
+
 }

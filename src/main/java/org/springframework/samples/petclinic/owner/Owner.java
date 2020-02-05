@@ -42,7 +42,7 @@ import org.springframework.samples.petclinic.model.Person;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @author Michael Isvy
- * @author Cèsar Ordiñana 
+ * @author Cèsar Ordiñana
  */
 @Entity
 @Table(name = "owners")
@@ -127,11 +127,9 @@ public class Owner extends Person {
 	 * @return true if pet name is already in use
 	 */
 	public Pet getPet(String name, boolean ignoreNew) {
-        	String lcName = name.toLowerCase();
-        	return getPetsInternal().stream()
-                	.filter(pet -> !ignoreNew || !pet.isNew())
-                	.filter(pet -> pet.getName().toLowerCase().equals(lcName))
-                	.findFirst();
+		String lcName = name.toLowerCase();
+		return getPetsInternal().stream().filter(pet -> !ignoreNew || !pet.isNew())
+				.filter(pet -> pet.getName().toLowerCase().equals(lcName)).findFirst();
 	}
 
 	@Override

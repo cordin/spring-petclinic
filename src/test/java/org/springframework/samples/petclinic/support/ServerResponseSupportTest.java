@@ -27,40 +27,41 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 /**
  * Unit tests for the {@link ServerResponseSupport} class
- * 
+ *
  * @author Cèsar Ordiñana
  */
 class ServerResponseSupportTest {
-    
-    private static ServerResponseSupport<SimpleEntity> support;
-    
-    @BeforeAll
-    static void prepare() {
-        support = new ServerResponseSupport<>(null, null);
-    }
-    
-    @Test
-    void redirectCreatesValidRedirectURI() {
-        SimpleEntity entity = new SimpleEntity(1);
-        String[] paths = {"/entity", "entity/", "/entity/", "entity"};
-        Stream.of(paths).forEach(
-            path -> assertThat(support.buildRedirectURI(entity.getId(), path)).isEqualTo("redirect:/entity/1") 
-        );
-    }
-    
-    @Test
-    void viewEntity() {
-        SimpleEntity entity = new SimpleEntity(1);
-        ServerResponse view = support.view(entity, "entity", "entityView");
-        assertThat(view.statusCode()).isEqualTo(HttpStatus.OK);
-        ServerResponse viewOther = support.view(entity, "entityOther", "entityView");
-        assertThat(viewOther.statusCode()).isEqualTo(HttpStatus.OK);
-    }
 
-    private class SimpleEntity extends BaseEntity {
-        public SimpleEntity(Integer id) {
-            setId(id);
-        }
-    }
-    
+	private static ServerResponseSupport<SimpleEntity> support;
+
+	@BeforeAll
+	static void prepare() {
+		support = new ServerResponseSupport<>(null, null);
+	}
+
+	@Test
+	void redirectCreatesValidRedirectURI() {
+		SimpleEntity entity = new SimpleEntity(1);
+		String[] paths = { "/entity", "entity/", "/entity/", "entity" };
+		Stream.of(paths).forEach(
+				path -> assertThat(support.buildRedirectURI(entity.getId(), path)).isEqualTo("redirect:/entity/1"));
+	}
+
+	@Test
+	void viewEntity() {
+		SimpleEntity entity = new SimpleEntity(1);
+		ServerResponse view = support.view(entity, "entity", "entityView");
+		assertThat(view.statusCode()).isEqualTo(HttpStatus.OK);
+		ServerResponse viewOther = support.view(entity, "entityOther", "entityView");
+		assertThat(viewOther.statusCode()).isEqualTo(HttpStatus.OK);
+	}
+
+	private class SimpleEntity extends BaseEntity {
+
+		public SimpleEntity(Integer id) {
+			setId(id);
+		}
+
+	}
+
 }

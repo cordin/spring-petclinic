@@ -24,21 +24,18 @@ import org.springframework.web.servlet.function.RouterFunction;
 
 /**
  * Configuration of routes for Vet functions.
+ *
  * @author Cèsar Ordiñana
  */
 @Configuration
 public class SystemRouteConfiguration {
-    
-    @Bean
-    public RouterFunction<?> systemFunction() {
-        return route()
-                .GET("/", request -> ok().render("welcome"))
-                .GET("/oups", request -> {
-                    throw new RuntimeException(
-                            "Expected: route used to showcase what "
-                            + "happens when an exception is thrown");
-                })
-                .build();
-    }
+
+	@Bean
+	public RouterFunction<?> systemFunction() {
+		return route().GET("/", request -> ok().render("welcome")).GET("/oups", request -> {
+			throw new RuntimeException(
+					"Expected: route used to showcase what " + "happens when an exception is thrown");
+		}).build();
+	}
 
 }

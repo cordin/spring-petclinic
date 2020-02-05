@@ -22,11 +22,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Simple domain object representing a list of veterinarians. 
- * Mostly here to be used for the 'vets' {@link
- * org.springframework.web.servlet.view.xml.MarshallingView}.
- * It's been modeled as immutable but the internal {@link Vet}
- * objects are still mutable.
+ * Simple domain object representing a list of veterinarians. Mostly here to be used for
+ * the 'vets' {@link org.springframework.web.servlet.view.xml.MarshallingView}. It's been
+ * modeled as immutable but the internal {@link Vet} objects are still mutable.
  *
  * @author Arjen Poutsma
  * @author Cèsar Ordiñana
@@ -34,15 +32,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Vets {
 
-    	private final List<Vet> vets;
-    
-    	public Vets(Collection<Vet> vets) {
-       		this.vets = List.copyOf(vets);
-    	}
+	private final List<Vet> vets;
 
-    	@XmlElement
-    	public List<Vet> getVetList() {
-        	return vets;
-    	}
+	public Vets(Collection<Vet> vets) {
+		this.vets = List.copyOf(vets);
+	}
+
+	@XmlElement
+	public List<Vet> getVetList() {
+		return vets;
+	}
 
 }

@@ -24,27 +24,29 @@ import org.springframework.web.servlet.function.ServerResponse;
 
 /**
  * Handler functions for the Vet class.
+ *
  * @author Cèsar Ordiñana
  */
 public class VetHandler {
 
-    private final VetRepository vets;
+	private final VetRepository vets;
 
-    public VetHandler(VetRepository vets) {
-        this.vets = vets;
-    }
-    
-    public ServerResponse showVetList(ServerRequest request) {
-        return ok().render("vets/vetList" , Map.of("vets", allVets()));
-    }
-    
-    public ServerResponse showResourcesVetList(ServerRequest request) {
-        return ok().body(allVets());
-    }
+	public VetHandler(VetRepository vets) {
+		this.vets = vets;
+	}
 
-    private Vets allVets() {
-        // Here we are returning an object of type 'Vets' rather than a collection of Vet
-        // objects so it is simpler for Object-Xml mapping
-        return new Vets(this.vets.findAll());
-    }
+	public ServerResponse showVetList(ServerRequest request) {
+		return ok().render("vets/vetList", Map.of("vets", allVets()));
+	}
+
+	public ServerResponse showResourcesVetList(ServerRequest request) {
+		return ok().body(allVets());
+	}
+
+	private Vets allVets() {
+		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// objects so it is simpler for Object-Xml mapping
+		return new Vets(this.vets.findAll());
+	}
+
 }
