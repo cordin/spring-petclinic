@@ -15,7 +15,7 @@
  */
 package org.springframework.samples.petclinic.vet;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -34,15 +34,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Vets {
 
-    private final List<Vet> vets;
+    	private final List<Vet> vets;
     
-    public Vets(Collection<Vet> vets) {
-        this.vets = List.copyOf(vets);
-    }
+    	public Vets(Collection<Vet> vets) {
+       		this.vets = List.copyOf(vets);
+    	}
 
-    @XmlElement
-    public List<Vet> getVetList() {
-        return vets;
-    }
+    	@XmlElement
+    	public List<Vet> getVetList() {
+        	return vets;
+    	}
 
 }
