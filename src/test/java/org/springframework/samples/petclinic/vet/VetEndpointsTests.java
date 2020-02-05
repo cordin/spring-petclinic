@@ -25,23 +25,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.assertj.core.util.Lists;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Test class for the {@link VetController}
  */
-@RunWith(SpringRunner.class)
 @WebMvcTest(VetRouteConfiguration.class)
-public class VetEndpointsTests {
+class VetEndpointsTests {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -49,8 +46,8 @@ public class VetEndpointsTests {
 	@MockBean
 	private VetRepository vets;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 		Vet james = new Vet();
 		james.setFirstName("James");
 		james.setLastName("Carter");
@@ -67,13 +64,13 @@ public class VetEndpointsTests {
 	}
 
 	@Test
-	public void testShowVetListHtml() throws Exception {
+	void testShowVetListHtml() throws Exception {
 		mockMvc.perform(get("/vets.html")).andExpect(status().isOk()).andExpect(model().attributeExists("vets"))
 				.andExpect(view().name("vets/vetList"));
 	}
 
 	@Test
-	public void testShowResourcesVetList() throws Exception {
+	void testShowResourcesVetList() throws Exception {
 		ResultActions actions = mockMvc.perform(get("/vets").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 		actions.andExpect(content().contentType("application/json")).andExpect(jsonPath("$.vetList[0].id").value(1));

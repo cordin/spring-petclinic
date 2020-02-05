@@ -126,7 +126,7 @@ public class Owner extends Person {
 	 * @param name to test
 	 * @return true if pet name is already in use
 	 */
-	public Pet getPet(String name, boolean ignoreNew) {
+	public Optional<Pet> getPet(String name, boolean ignoreNew) {
 		String lcName = name.toLowerCase();
 		return getPetsInternal().stream().filter(pet -> !ignoreNew || !pet.isNew())
 				.filter(pet -> pet.getName().toLowerCase().equals(lcName)).findFirst();
