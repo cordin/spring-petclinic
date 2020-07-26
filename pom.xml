@@ -146,6 +146,13 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <configuration>
+          <rulesUri>file:///${project.basedir}/maven-version-rules.xml</rulesUri>
+        </configuration>
+      </plugin>      
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>3.1.0</version>
