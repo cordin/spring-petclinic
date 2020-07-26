@@ -150,8 +150,11 @@
         <artifactId>versions-maven-plugin</artifactId>
         <configuration>
           <rulesUri>file:///${project.basedir}/maven-version-rules.xml</rulesUri>
+          <excludes>
+            <exclude>org.webjars:*</exclude>
+          </excludes>
         </configuration>
-      </plugin>      
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
