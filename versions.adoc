@@ -1,0 +1,78 @@
+= Maven versions auto-update
+
+Using the https://www.mojohaus.org/versions-maven-plugin[maven versions plugin]
+
+== Updating dependencies versions
+
+=== Update parent
+
+http://www.mojohaus.org/versions-maven-plugin/update-parent-mojo.html
+
+----
+./mvnw versions:update-parent
+----
+
+Problem: provides updates to alpha, beta, milestone, ... and other non final versions. To avoid it, add following configuration:
+
+[source,xml]
+.pom.xml
+----
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <configuration>
+          <rulesUri>file:///${project.basedir}/maven-version-rules.xml</rulesUri>
+        </configuration>
+      </plugin>  
+----
+
+[source,xml]
+.maven-version-rules.xml
+----
+<ruleset comparisonMethod="maven"
+  xmlns="https://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0"
+  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0 https://mojo.codehaus.org/versions-maven-plugin/xsd/rule-2.0.0.xsd">
+  <ignoreVersions>
+    <ignoreVersion type="regex">.*[-_\.](alpha|Alpha|ALPHA|b|beta|Beta|BETA|rc|RC|M|EA)[-_\.]?[0-9]*</ignoreVersion>
+  </ignoreVersions>
+</ruleset>
+----
+
+=== Update dependencies
+
+Two options depending on how you define versions:
+
+* In each dependency: use the https://www.mojohaus.org/versions-maven-plugin/examples/advancing-dependency-versions.html[versions:use-*] plugin goals.
+* In properties: use the https://www.mojohaus.org/versions-maven-plugin/examples/update-properties.html[versions:update-properties] goal.
+
+Don't mix them and use the _version:use-*_ plugins, it will replace any properties used in versions by the versions itself.
+
+We are going to cover the properties based version update.
+
+----
+./mvnw versions:update-properties 
+----
+
+=== All at once
+
+----
+./mvnw versions:update-parent versions:update-properties 
+----
+
+=== Excludes
+
+In case there is a problem or you don't want to migrate some dependencies:
+
+See https://www.mojohaus.org/versions-maven-plugin/examples/update-properties.html
+
+[source,xml]
+.pom.xml
+----
+          <excludes>
+            <exclude>org.webjars:*</exclude>
+          </excludes>
+----
+
+
+
