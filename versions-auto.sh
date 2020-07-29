@@ -2,6 +2,12 @@
 
 BRANCH="versions-autoupdate"
 
+echo "Configuration required by github"
+
+git config pull.rebase false
+git config user.email "cordin@gmail.com"
+git config user.name "cordin"
+
 echo "Creating branch ${BRANCH}"
 
 git pull
