@@ -8,10 +8,11 @@ git config pull.rebase false
 git config user.email "cordin@gmail.com"
 git config user.name "cordin"
 
-echo "Creating branch ${BRANCH}"
+echo "Creating or updating branch ${BRANCH}"
 
-git pull
+git pull -X theirs
 git checkout -b ${BRANCH} master
+git merge --strategy-option theirs
 git push -u origin ${BRANCH}
 
 echo "Updating versions"
