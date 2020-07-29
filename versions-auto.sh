@@ -15,6 +15,6 @@ echo "Updating versions"
 echo "Commiting and MR"
 
 git add pom.xml
-git ci -m "Update dependencies versions"
+git commit -m "Update dependencies versions"
 git push
 
