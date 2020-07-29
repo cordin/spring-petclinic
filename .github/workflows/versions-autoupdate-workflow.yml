@@ -1,12 +1,12 @@
 name: versions auto-update
 # This workflow is triggered once a day
-on:
-  schedule:
-    - cron: '0 0 * * *'
+on: [push]
+#  schedule:
+#    - cron: '0 0 * * *'
 
 jobs:
   build:
-    # Job name is Greeting
+    # Job name
     name: versions auto-update
     # This job runs on Linux
     runs-on: ubuntu-latest
@@ -16,13 +16,11 @@ jobs:
       shell: bash
       run: |
         sh versions-auto.sh
-      #env:
-      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: create-mr
       shell: bash
       run: |
         curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-        bin/hub pull-request -m "Auto update versions"
+        bin/hub pull-request -m "Auto update versions" -b cordin:master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
