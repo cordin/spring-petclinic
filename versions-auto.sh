@@ -1,6 +1,7 @@
 #/bin/sh
 
-BRANCH="versions-autoupdate"
+TODAY=$(date +"%Y-%m-%d")
+BRANCH="versions-autoupdate-$(TODAY)"
 
 echo "Configuration required by github"
 
@@ -8,11 +9,13 @@ git config pull.rebase false
 git config user.email "cordin@gmail.com"
 git config user.name "cordin"
 
-echo "Creating or updating branch ${BRANCH}"
+echo "Creating branch ${BRANCH}"
 
 git pull -X theirs
 git checkout -b ${BRANCH} master
-git merge --strategy-option theirs
+#git merge --strategy-option theirs
+#git add .
+#git ci -m "Merge from master"
 git push -u origin ${BRANCH}
 
 echo "Updating versions"
