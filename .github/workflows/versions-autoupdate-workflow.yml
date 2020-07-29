@@ -12,10 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
+    # Step that does that actual cache save and restore
+    - uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
     - name: autoupdate-script
       shell: bash
       run: |
         sh versions-auto.sh
+
     - name: create-mr
       shell: bash
       run: |
@@ -23,5 +33,4 @@ jobs:
         bin/hub pull-request -m "Auto update versions" -b cordin:master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
