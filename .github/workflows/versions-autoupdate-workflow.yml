@@ -1,9 +1,11 @@
 name: versions auto-update
 # This workflow is triggered once a day
 #on: [push]
-on:
-  schedule:
-    - cron:  '0 0 * * 1'
+# _Every monday:
+#on:
+#  schedule:
+#    - cron:  '0 0 * * 1'
+on: [pull_request_target]
 
 jobs:
   build:
